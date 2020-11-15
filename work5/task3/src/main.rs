@@ -1,56 +1,46 @@
-
-trait Area {
-    fn area(&self) -> f32;
+pub trait HasArea {
+    type Output;
+    fn get_area(&self) -> Self::Output;
 }
-
-#[derive(Debug)]
-struct Rectangle {
-    w: f32,
-    h: f32,
+struct Square<T> {
+    side: T,
 }
+struct Circle<T> {
+    radius: T,
+}
+struct Triangle<T> {
+    base: T,
+    hight: T,
+}
+impl<T: std::ops::Mul<Output = T> + Copy> HasArea for Square<T> {
+    type Output = T;
 
-impl Area for Rectangle {
-    fn area(&self) -> f32 {
-        self.w * self.h
+    fn get_area(&self) -> Self::Output {
+        self.side * self.side
     }
 }
+impl<T: std::ops::Mul<Output = T> + Into<f64> + Copy> HasArea for Circle<T> {
+    type Output = f64;
 
-#[derive(Debug)]
-struct Triangle{
-    w: f32,
-    h: f32,
-}
-
-impl Area for Triangle {
-    fn area(&self) -> f32 {
-        self.h * self.w*0.5
+    fn get_area(&self) -> Self::Output {
+        (self.radius * self.radius).into() * std::f64::consts::PI
     }
 }
+impl<T: std::ops::Mul<Output = T> + Into<f64> + Copy> HasArea for Triangle<T> {
+    type Output = f64;
 
-#[derive(Debug)]
-struct Circle{
-    r: f32,
-}
-
-impl Area for Circle{
-    fn area(&self) -> f32 {
-        self.r * self.r
+    fn get_area(&self) -> Self::Output {
+        (self.base * self.hight).into() * 0.5
     }
 }
+fn main() {
 
-fn static_dispatch<T>(t:&T)
-    where T:Area,
-    {
-        //println!("{:?}",*t);
-        println!("The shape area is {}",t.area());
-    }
+    let s = Square {side: 10};
+    println!("square: {}", s.get_area());
 
-fn main(){
-    let rectangle = Rectangle{ w: 10.0, h: 2.5 };
-    static_dispatch(&rectangle);
-    let circle = Circle{ r: 10.0};
-    static_dispatch(&circle);
-    let trianlge = Triangle{ w: 10.0, h: 4.0 };
-    static_dispatch(&trianlge);
+    let r = Circle {radius: 2};
+    println!("circle: {}", r.get_area());
 
+    let t = Triangle {base: 2, hight: 1};
+    println!("Triangle: {}", t.get_area());
 }
